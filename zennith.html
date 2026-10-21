@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zennith · 宁境 - 沉浸式放空与静心空间</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Serif for Zen headings, Sans for body -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500;600&family=Plus+Jakarta+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        zen: {
+                            bgLight: '#fbf9f5',
+                            cardLight: 'rgba(255, 255, 255, 0.65)',
+                            bgDark: '#0f172a',
+                            cardDark: 'rgba(30, 41, 59, 0.6)',
+                            sage: '#84a98c',
+                            mist: '#cad2c5',
+                            indigo: '#354f52',
+                            warmGlow: '#f4a261',
+                            amberSoft: '#e9c46a'
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['"Noto Serif SC"', 'serif'],
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: background-color 1s ease, color 1s ease;
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        /* Dynamic Mesh Gradient Background Animation */
+        .zen-bg-gradient {
+            background: linear-gradient(-45deg, #f7f3eb, #eef4f0, #e8edea, #fdfbf7);
+            background-size: 400% 400%;
+            animation: gradientShift 25s ease infinite;
+        }
+
+        .dark .zen-bg-gradient {
+            background: linear-gradient(-45deg, #090d16, #0f172a, #1a2332, #0d131f);
+            background-size: 400% 400%;
+            animation: gradientShift 25s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Glassmorphism Cards */
+        .glass-panel {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.05);
+        }
+
+        .dark .glass-panel {
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Breathing Orb Animation Effect */
+        .breathing-orb {
+            transition: transform 0.1s linear, box-shadow 1s ease-in-out;
+            will-change: transform;
+        }
+
+        /* Custom Soft Scrollbar */
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(132, 169, 140, 0.3);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(132, 169, 140, 0.6);
+        }
+
+        /* Subtle Fade In Class */
+        .fade-enter {
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-enter-active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="h-full zen-bg-gradient text-slate-700 dark:text-slate-200 antialiased flex flex-col justify-between relative selection:bg-zen-sage/30">
+
+    <!-- Interactive Background Canvas for Waves & Dissolving Dust -->
+    <canvas id="ambientCanvas" class="fixed inset-0 w-full h-full pointer-events-auto z-0"></canvas>
+
+    <!-- Top Floating Header Bar -->
+    <header class="relative z-10 w-full max-w-6xl mx-auto px-6 py-6 flex items-center justify-between transition-all duration-700" id="mainHeader">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full bg-zen-sage/20 dark:bg-zen-sage/10 backdrop-blur-md flex items-center justify-center border border-zen-sage/30 text-zen-sage dark:text-amber-200/90 shadow-sm">
+                <i class="fa-solid fa-wind text-sm animate-pulse"></i>
+            </div>
+            <div>
+                <h1 class="font-serif text-lg tracking-wider font-medium text-slate-800 dark:text-slate-100">Zennith · 宁境</h1>
+                <p class="text-[11px] text-slate-400 font-light tracking-widest uppercase">Mindful Sanctuary</p>
+            </div>
+        </div>
+
+        <!-- Quick Controls Bar -->
+        <div class="flex items-center gap-3">
+            <!-- Zen Quotes Refresh Button -->
+            <button onclick="refreshQuote()" title="静心一语" class="p-2.5 rounded-full glass-panel hover:bg-white/80 dark:hover:bg-slate-800/80 text-slate-500 dark:text-slate-300 transition text-xs flex items-center justify-center w-9 h-9">
+                <i class="fa-solid fa-quote-right"></i>
+            </button>
+
+            <!-- Dark / Light Theme Toggle -->
+            <button onclick="toggleTheme()" title="切换昼夜氛围" class="p-2.5 rounded-full glass-panel hover:bg-white/80 dark:hover:bg-slate-800/80 text-slate-500 dark:text-slate-300 transition text-xs flex items-center justify-center w-9 h-9">
+                <i id="themeIcon" class="fa-solid fa-moon"></i>
+            </button>
+
+            <!-- Full Screen Ambient Zen Mode Toggle -->
+            <button onclick="toggleZenMode()" title="全屏沉浸放空" class="px-4 py-2 rounded-full glass-panel hover:bg-white/90 dark:hover:bg-slate-800/90 text-slate-700 dark:text-slate-200 text-xs font-medium tracking-wide flex items-center gap-2 transition shadow-sm border border-slate-200/50 dark:border-slate-700/50">
+                <i class="fa-solid fa-expand text-[10px]"></i>
+                <span>沉浸模式</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Area Grid -->
+    <main class="relative z-10 w-full max-w-6xl mx-auto px-6 py-4 flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center" id="mainContent">
+        
+        <!-- Left Panel: Ambient Soundscapes & Zen Journal (5 Cols) -->
+        <section class="lg:col-span-5 flex flex-col gap-6">
+            
+            <!-- Soundscape Generator Card -->
+            <div class="glass-panel bg-zen-cardLight dark:bg-zen-cardDark rounded-3xl p-6 transition-all">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-zen-sage text-sm"></i>
+                        <h2 class="font-serif text-sm font-medium tracking-wider text-slate-800 dark:text-slate-100">自然音效馆</h2>
+                    </div>
+                    <button onclick="stopAllSounds()" class="text-[11px] text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 transition flex items-center gap-1">
+                        <i class="fa-solid fa-volume-xmark"></i> 全静音
+                    </button>
+                </div>
+
+                <!-- Ambient Sound Tracks Grid -->
+                <div class="space-y-3" id="soundTracksContainer">
+                    <!-- Audio Track 1: Rain -->
+                    <div class="bg-white/40 dark:bg-slate-800/40 p-3 rounded-2xl border border-white/60 dark:border-slate-700/40 flex items-center gap-3">
+                        <button onclick="toggleSound('rain')" id="btn-rain" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 flex items-center justify-center transition hover:scale-105">
+                            <i class="fa-solid fa-cloud-rain text-xs"></i>
+                        </button>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-xs font-medium text-slate-700 dark:text-slate-200">清心淅雨</span>
+                                <span class="text-[10px] text-slate-400" id="vol-text-rain">0%</span>
+                            </div>
+                            <input type="range" min="0" max="100" value="0" oninput="adjustVolume('rain', this.value)" class="w-full accent-zen-sage h-1 bg-slate-200 dark:bg-slate-700 rounded-lg cursor-pointer">
+                        </div>
+                    </div>
+
+                    <!-- Audio Track 2: Ocean Waves -->
+                    <div class="bg-white/40 dark:bg-slate-800/40 p-3 rounded-2xl border border-white/60 dark:border-slate-700/40 flex items-center gap-3">
+                        <button onclick="toggleSound('ocean')" id="btn-ocean" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 flex items-center justify-center transition hover:scale-105">
+                            <i class="fa-solid fa-water text-xs"></i>
+                        </button>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-xs font-medium text-slate-700 dark:text-slate-200">深海微澜</span>
+                                <span class="text-[10px] text-slate-400" id="vol-text-ocean">0%</span>
+                            </div>
+                            <input type="range" min="0" max="100" value="0" oninput="adjustVolume('ocean', this.value)" class="w-full accent-zen-sage h-1 bg-slate-200 dark:bg-slate-700 rounded-lg cursor-pointer">
+                        </div>
+                    </div>
+
+                    <!-- Audio Track 3: Singing Bowl -->
+                    <div class="bg-white/40 dark:bg-slate-800/40 p-3 rounded-2xl border border-white/60 dark:border-slate-700/40 flex items-center gap-3">
+                        <button onclick="toggleSound('bowl')" id="btn-bowl" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 flex items-center justify-center transition hover:scale-105">
+                            <i class="fa-solid fa-bell text-xs"></i>
+                        </button>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-xs font-medium text-slate-700 dark:text-slate-200">颂钵余音</span>
+                                <span class="text-[10px] text-slate-400" id="vol-text-bowl">0%</span>
+                            </div>
+                            <input type="range" min="0" max="100" value="0" oninput="adjustVolume('bowl', this.value)" class="w-full accent-zen-sage h-1 bg-slate-200 dark:bg-slate-700 rounded-lg cursor-pointer">
+                        </div>
+                    </div>
+
+                    <!-- Audio Track 4: Cosmic Brown Noise -->
+                    <div class="bg-white/40 dark:bg-slate-800/40 p-3 rounded-2xl border border-white/60 dark:border-slate-700/40 flex items-center gap-3">
+                        <button onclick="toggleSound('space')" id="btn-space" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 flex items-center justify-center transition hover:scale-105">
+                            <i class="fa-solid fa-meteor text-xs"></i>
+                        </button>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-xs font-medium text-slate-700 dark:text-slate-200">宇宙低鸣 (棕噪)</span>
+                                <span class="text-[10px] text-slate-400" id="vol-text-space">0%</span>
+                            </div>
+                            <input type="range" min="0" max="100" value="0" oninput="adjustVolume('space', this.value)" class="w-full accent-zen-sage h-1 bg-slate-200 dark:bg-slate-700 rounded-lg cursor-pointer">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Thought Release / Ephemeral Journal Card -->
+            <div class="glass-panel bg-zen-cardLight dark:bg-zen-cardDark rounded-3xl p-6 transition-all relative overflow-hidden">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-feather-pointed text-zen-sage text-sm"></i>
+                        <h2 class="font-serif text-sm font-medium tracking-wider text-slate-800 dark:text-slate-100">烦恼消融写意</h2>
+                    </div>
+                    <span class="text-[10px] text-slate-400">写下焦虑，让它随风散尽</span>
+                </div>
+
+                <div class="relative">
+                    <textarea id="thoughtInput" placeholder="写下此刻困扰你的念头、压力或焦虑..." rows="3" class="w-full p-3.5 rounded-2xl bg-white/50 dark:bg-slate-800/50 border border-white/80 dark:border-slate-700/60 text-xs text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-zen-sage resize-none transition custom-scroll"></textarea>
+                    
+                    <div class="flex justify-end mt-3">
+                        <button onclick="releaseThought()" id="btnRelease" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 dark:bg-zen-sage dark:hover:bg-emerald-600 text-white rounded-full text-xs font-medium tracking-wide transition shadow-sm flex items-center gap-2 active:scale-95">
+                            <i class="fa-solid fa-wind text-[10px]"></i>
+                            <span>放空与消融</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Right Panel: Mindful Breathing Focus Guide (7 Cols) -->
+        <section class="lg:col-span-7 flex flex-col items-center justify-center relative min-h-[420px]">
+            
+            <!-- Rhythm Pattern Preset Selector -->
+            <div class="flex items-center gap-2 mb-8 bg-white/40 dark:bg-slate-800/40 p-1.5 rounded-full border border-white/60 dark:border-slate-700/40 backdrop-blur-md">
+                <button onclick="setBreathingPattern('478')" id="preset-478" class="px-3.5 py-1.5 rounded-full text-xs font-medium transition bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 shadow-sm">
+                    4-7-8 助眠模式
+                </button>
+                <button onclick="setBreathingPattern('box')" id="preset-box" class="px-3.5 py-1.5 rounded-full text-xs font-medium transition text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200">
+                    4-4-4 正方形抗压
+                </button>
+                <button onclick="setBreathingPattern('calm')" id="preset-calm" class="px-3.5 py-1.5 rounded-full text-xs font-medium transition text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200">
+                    5-5 舒缓平稳
+                </button>
+            </div>
+
+            <!-- Breathing Visualizer Interactive Orb -->
+            <div class="relative flex items-center justify-center my-6">
+                
+                <!-- Ambient Outer Pulse Rings -->
+                <div id="ringOuter" class="absolute w-72 h-72 sm:w-80 sm:h-80 rounded-full border border-zen-sage/20 dark:border-zen-sage/10 transition-all duration-1000 scale-90 opacity-40"></div>
+                <div id="ringMid" class="absolute w-60 h-60 sm:w-64 sm:h-64 rounded-full border border-amber-300/30 dark:border-amber-400/10 transition-all duration-1000 scale-95 opacity-60"></div>
+
+                <!-- Central Breathing Sphere Orb -->
+                <div id="breathOrb" class="breathing-orb w-44 h-44 sm:w-52 sm:h-52 rounded-full bg-gradient-to-br from-zen-sage/60 via-amber-200/50 to-zen-mist/70 dark:from-emerald-800/40 dark:via-teal-900/40 dark:to-slate-800/80 backdrop-blur-md border border-white/70 dark:border-emerald-400/20 shadow-2xl flex flex-col items-center justify-center cursor-pointer transform scale-75">
+                    
+                    <span id="breathPhaseText" class="font-serif text-lg sm:text-xl font-medium tracking-widest text-slate-800 dark:text-slate-100 mb-1 transition-all">
+                        准备静心
+                    </span>
+                    <span id="breathTimerText" class="text-xs font-light tracking-widest text-slate-500 dark:text-slate-400 opacity-80">
+                        点击开启呼吸领航
+                    </span>
+                </div>
+            </div>
+
+            <!-- Start / Pause Breathing Controls -->
+            <div class="mt-8 flex items-center gap-4">
+                <button onclick="toggleBreathing()" id="btnBreathingToggle" class="px-6 py-2.5 rounded-full glass-panel hover:bg-white dark:hover:bg-slate-800 text-slate-800 dark:text-slate-100 text-xs font-medium tracking-wider flex items-center gap-2 shadow-sm transition active:scale-95 border border-slate-200/80 dark:border-slate-700/80">
+                    <i id="breathControlIcon" class="fa-solid fa-play text-[10px] text-zen-sage"></i>
+                    <span id="breathControlText">开始呼吸导引</span>
+                </button>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- Bottom Quiet Zen Quote Bar -->
+    <footer class="relative z-10 w-full max-w-4xl mx-auto px-6 py-6 text-center transition-all duration-700" id="mainFooter">
+        <div class="glass-panel bg-white/30 dark:bg-slate-900/40 rounded-2xl p-4 border border-white/50 dark:border-slate-800/50 inline-block max-w-2xl">
+            <p id="zenQuote" class="font-serif text-xs sm:text-sm tracking-wide text-slate-600 dark:text-slate-300 leading-relaxed transition-opacity duration-700">
+                “心如明镜台，时时勤拂拭，莫使有尘埃。”
+            </p>
+            <p id="zenAuthor" class="text-[10px] text-slate-400 mt-1.5 font-light tracking-widest uppercase">
+                —— 禅语与自然沉思
+            </p>
+        </div>
+    </footer>
+
+    <!-- Fullscreen Exit Floating Button (Visible in Zen Mode) -->
+    <button onclick="toggleZenMode()" id="exitZenBtn" class="fixed top-6 right-6 z-50 p-3 rounded-full glass-panel bg-black/20 text-white/80 hover:text-white transition hidden hover:scale-110">
+        <i class="fa-solid fa-compress text-sm"></i>
+    </button>
+
+    <!-- Audio & Canvas Logic -->
+    <script>
+        /* ----------------------------------------------------
+         * 1. Procedural Web Audio API Ambient Sound Generator
+         * ---------------------------------------------------- */
+        let audioCtx = null;
+        const soundNodes = {};
+
+        function initAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        // Generate procedural noise buffers (Rain, Ocean, Brown Noise)
+        function createNoiseBuffer(type = 'brown') {
+            const bufferSize = audioCtx.sampleRate * 5; // 5 seconds loop
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            let lastOut = 0.0;
+
+            for (let i = 0; i < bufferSize; i++) {
+                const white = Math.random() * 2 - 1;
+                if (type === 'brown') {
+                    // Brown noise filter algorithm
+                    data[i] = (lastOut + (0.02 * white)) / 1.02;
+                    lastOut = data[i];
+                    data[i] *= 3.5; // Gain compensation
+                } else if (type === 'pink') {
+                    data[i] = white * 0.5;
+                } else {
+                    data[i] = white;
+                }
+            }
+            return buffer;
+        }
+
+        // Initialize Audio Track Node
+        function initSound(type) {
+            initAudioContext();
+            if (soundNodes[type]) return;
+
+            const gainNode = audioCtx.createGain();
+            gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+            gainNode.connect(audioCtx.destination);
+
+            if (type === 'space') {
+                // Brown noise space generator
+                const noiseSource = audioCtx.createBufferSource();
+                noiseSource.buffer = createNoiseBuffer('brown');
+                noiseSource.loop = true;
+
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(180, audioCtx.currentTime);
+
+                noiseSource.connect(filter);
+                filter.connect(gainNode);
+                noiseSource.start();
+
+                soundNodes[type] = { source: noiseSource, gain: gainNode, volume: 0 };
+            } 
+            else if (type === 'rain') {
+                // Rain noise synthesizer with bandpass
+                const noiseSource = audioCtx.createBufferSource();
+                noiseSource.buffer = createNoiseBuffer('brown');
+                noiseSource.loop = true;
+
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(1000, audioCtx.currentTime);
+
+                noiseSource.connect(filter);
+                filter.connect(gainNode);
+                noiseSource.start();
+
+                soundNodes[type] = { source: noiseSource, gain: gainNode, volume: 0 };
+            } 
+            else if (type === 'ocean') {
+                // Ocean waves using modulating lowpass noise
+                const noiseSource = audioCtx.createBufferSource();
+                noiseSource.buffer = createNoiseBuffer('brown');
+                noiseSource.loop = true;
+
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'lowpass';
+
+                // LFO for ocean tide swell simulation
+                const lfo = audioCtx.createOscillator();
+                lfo.frequency.setValueAtTime(0.12, audioCtx.currentTime); // 8 sec wave tide cycle
+                const lfoGain = audioCtx.createGain();
+                lfoGain.gain.setValueAtTime(300, audioCtx.currentTime);
+
+                lfo.connect(lfoGain);
+                lfoGain.connect(filter.frequency);
+                filter.frequency.setValueAtTime(400, audioCtx.currentTime);
+
+                noiseSource.connect(filter);
+                filter.connect(gainNode);
+                lfo.start();
+                noiseSource.start();
+
+                soundNodes[type] = { source: noiseSource, gain: gainNode, volume: 0, lfo: lfo };
+            } 
+            else if (type === 'bowl') {
+                // Tibetan Singing Bowl Harmonic Resonator
+                const osc1 = audioCtx.createOscillator();
+                const osc2 = audioCtx.createOscillator();
+                osc1.type = 'sine';
+                osc2.type = 'sine';
+                osc1.frequency.setValueAtTime(216, audioCtx.currentTime); // Sacred 216Hz frequency
+                osc2.frequency.setValueAtTime(432, audioCtx.currentTime);
+
+                const bowlGain2 = audioCtx.createGain();
+                bowlGain2.gain.setValueAtTime(0.3, audioCtx.currentTime);
+
+                osc1.connect(gainNode);
+                osc2.connect(bowlGain2);
+                bowlGain2.connect(gainNode);
+
+                osc1.start();
+                osc2.start();
+
+                soundNodes[type] = { source: osc1, gain: gainNode, volume: 0 };
+            }
+        }
+
+        function toggleSound(type) {
+            initAudioContext();
+            const btn = document.getElementById(`btn-${type}`);
+            const slider = document.querySelector(`input[oninput*="'${type}'"]`);
+
+            if (!soundNodes[type] || soundNodes[type].volume === 0) {
+                adjustVolume(type, 50);
+                slider.value = 50;
+            } else {
+                adjustVolume(type, 0);
+                slider.value = 0;
+            }
+        }
+
+        function adjustVolume(type, val) {
+            initAudioContext();
+            initSound(type);
+
+            const vol = parseFloat(val) / 100;
+            soundNodes[type].volume = vol;
+            soundNodes[type].gain.gain.linearRampToValueAtTime(vol * 0.4, audioCtx.currentTime + 0.1);
+
+            document.getElementById(`vol-text-${type}`).innerText = `${Math.round(val)}%`;
+            const btn = document.getElementById(`btn-${type}`);
+
+            if (vol > 0) {
+                btn.classList.add('bg-zen-sage', 'text-white', 'shadow-sm');
+                btn.classList.remove('bg-slate-100', 'dark:bg-slate-700', 'text-slate-500', 'dark:text-slate-300');
+            } else {
+                btn.classList.remove('bg-zen-sage', 'text-white', 'shadow-sm');
+                btn.classList.add('bg-slate-100', 'dark:bg-slate-700', 'text-slate-500', 'dark:text-slate-300');
+            }
+        }
+
+        function stopAllSounds() {
+            Object.keys(soundNodes).forEach(type => {
+                adjustVolume(type, 0);
+                const slider = document.querySelector(`input[oninput*="'${type}'"]`);
+                if (slider) slider.value = 0;
+            });
+        }
+
+
+        /* ----------------------------------------------------
+         * 2. Interactive Canvas: Water Ripples & Release Particles
+         * ---------------------------------------------------- */
+        const canvas = document.getElementById('ambientCanvas');
+        const ctx = canvas.getContext('2d');
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        });
+
+        const ripples = [];
+        const particles = [];
+
+        class Ripple {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.radius = 2;
+                this.maxRadius = Math.random() * 80 + 60;
+                this.opacity = 0.6;
+                this.speed = 1.2;
+            }
+            update() {
+                this.radius += this.speed;
+                this.opacity -= 0.007;
+            }
+            draw() {
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                const isDark = document.documentElement.classList.contains('dark');
+                ctx.strokeStyle = isDark ? `rgba(132, 169, 140, ${this.opacity})` : `rgba(132, 169, 140, ${this.opacity * 0.8})`;
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+                ctx.restore();
+            }
+        }
+
+        class FloatingParticle {
+            constructor(x, y, textChar = null) {
+                this.x = x;
+                this.y = y;
+                this.vx = (Math.random() - 0.5) * 1.5;
+                this.vy = -Math.random() * 2 - 0.5; // Float upwards
+                this.alpha = 1;
+                this.size = Math.random() * 3 + 2;
+                this.char = textChar;
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.alpha -= 0.008;
+            }
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = Math.max(0, this.alpha);
+                if (this.char) {
+                    ctx.font = '12px "Noto Serif SC"';
+                    ctx.fillStyle = '#f4a261';
+                    ctx.fillText(this.char, this.x, this.y);
+                } else {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fillStyle = '#84a98c';
+                    ctx.fill();
+                }
+                ctx.restore();
+            }
+        }
+
+        // Canvas animation frame loop
+        function animateCanvas() {
+            ctx.clearRect(0, 0, width, height);
+
+            // Update & draw ripples
+            for (let i = ripples.length - 1; i >= 0; i--) {
+                ripples[i].update();
+                ripples[i].draw();
+                if (ripples[i].opacity <= 0) ripples.splice(i, 1);
+            }
+
+            // Update & draw release particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                particles[i].update();
+                particles[i].draw();
+                if (particles[i].alpha <= 0) particles.splice(i, 1);
+            }
+
+            requestAnimationFrame(animateCanvas);
+        }
+        animateCanvas();
+
+        // Create ripple on background click
+        window.addEventListener('click', (e) => {
+            // Ignore click if clicking on interactive buttons or textareas
+            if (e.target.closest('button, input, textarea, a, .glass-panel')) return;
+            ripples.push(new Ripple(e.clientX, e.clientY));
+        });
+
+
+        /* ----------------------------------------------------
+         * 3. Mindful Breathing Guide Logic (4-7-8, Box, Calm)
+         * ---------------------------------------------------- */
+        let breathingState = {
+            active: false,
+            phaseIndex: 0,
+            timer: null,
+            pattern: '478'
+        };
+
+        const breathPatterns = {
+            '478': [
+                { name: '吸气 Inhale', duration: 4, scale: 1.25 },
+                { name: '屏息 Hold', duration: 7, scale: 1.25 },
+                { name: '呼气 Exhale', duration: 8, scale: 0.75 }
+            ],
+            'box': [
+                { name: '吸气 Inhale', duration: 4, scale: 1.25 },
+                { name: '屏息 Hold', duration: 4, scale: 1.25 },
+                { name: '呼气 Exhale', duration: 4, scale: 0.75 },
+                { name: '保持 Rest', duration: 4, scale: 0.75 }
+            ],
+            'calm': [
+                { name: '吸气 Inhale', duration: 5, scale: 1.25 },
+                { name: '呼气 Exhale', duration: 5, scale: 0.75 }
+            ]
+        };
+
+        function setBreathingPattern(preset) {
+            breathingState.pattern = preset;
+            ['478', 'box', 'calm'].forEach(p => {
+                const btn = document.getElementById(`preset-${p}`);
+                if (p === preset) {
+                    btn.className = "px-3.5 py-1.5 rounded-full text-xs font-medium transition bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 shadow-sm";
+                } else {
+                    btn.className = "px-3.5 py-1.5 rounded-full text-xs font-medium transition text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200";
+                }
+            });
+            if (breathingState.active) {
+                stopBreathing();
+                startBreathing();
+            }
+        }
+
+        function toggleBreathing() {
+            if (breathingState.active) {
+                stopBreathing();
+            } else {
+                startBreathing();
+            }
+        }
+
+        function startBreathing() {
+            breathingState.active = true;
+            breathingState.phaseIndex = 0;
+
+            document.getElementById('breathControlIcon').className = "fa-solid fa-pause text-[10px] text-amber-500";
+            document.getElementById('breathControlText').innerText = "暂停冥想导引";
+
+            runBreathingPhase();
+        }
+
+        function stopBreathing() {
+            breathingState.active = false;
+            clearTimeout(breathingState.timer);
+
+            document.getElementById('breathControlIcon').className = "fa-solid fa-play text-[10px] text-zen-sage";
+            document.getElementById('breathControlText').innerText = "开始呼吸导引";
+            document.getElementById('breathPhaseText').innerText = "准备静心";
+            document.getElementById('breathTimerText').innerText = "点击开启呼吸导引";
+
+            const orb = document.getElementById('breathOrb');
+            orb.style.transform = `scale(0.75)`;
+            orb.style.transitionDuration = '1s';
+        }
+
+        function runBreathingPhase() {
+            if (!breathingState.active) return;
+
+            const phases = breathPatterns[breathingState.pattern];
+            const currentPhase = phases[breathingState.phaseIndex];
+
+            const orb = document.getElementById('breathOrb');
+            const ringOuter = document.getElementById('ringOuter');
+            const phaseText = document.getElementById('breathPhaseText');
+            const timerText = document.getElementById('breathTimerText');
+
+            phaseText.innerText = currentPhase.name;
+            orb.style.transitionDuration = `${currentPhase.duration}s`;
+            orb.style.transform = `scale(${currentPhase.scale})`;
+
+            // Ring pulse animation sync
+            ringOuter.style.transform = currentPhase.scale > 1 ? 'scale(1.15)' : 'scale(0.85)';
+
+            let count = currentPhase.duration;
+            timerText.innerText = `${count} 秒`;
+
+            const countdownInterval = setInterval(() => {
+                count--;
+                if (count > 0 && breathingState.active) {
+                    timerText.innerText = `${count} 秒`;
+                } else {
+                    clearInterval(countdownInterval);
+                }
+            }, 1000);
+
+            breathingState.timer = setTimeout(() => {
+                if (breathingState.active) {
+                    breathingState.phaseIndex = (breathingState.phaseIndex + 1) % phases.length;
+                    runBreathingPhase();
+                }
+            }, currentPhase.duration * 1000);
+        }
+
+
+        /* ----------------------------------------------------
+         * 4. Thought Release Dissolution Effect
+         * ---------------------------------------------------- */
+        function releaseThought() {
+            const textarea = document.getElementById('thoughtInput');
+            const text = textarea.value.trim();
+            if (!text) return;
+
+            const rect = textarea.getBoundingClientRect();
+            
+            // Generate glowing text floating particles across the input bounds
+            for (let i = 0; i < text.length; i++) {
+                const char = text[i];
+                const x = rect.left + Math.random() * rect.width;
+                const y = rect.top + Math.random() * rect.height;
+                particles.push(new FloatingParticle(x, y, char));
+            }
+
+            // Extra glowing dust particles
+            for (let i = 0; i < 20; i++) {
+                const x = rect.left + Math.random() * rect.width;
+                const y = rect.top + Math.random() * rect.height;
+                particles.push(new FloatingParticle(x, y, null));
+            }
+
+            // Clear input gracefully
+            textarea.style.transition = "opacity 0.6s ease";
+            textarea.style.opacity = "0";
+
+            setTimeout(() => {
+                textarea.value = "";
+                textarea.style.opacity = "1";
+            }, 600);
+        }
+
+
+        /* ----------------------------------------------------
+         * 5. Zen Quotes & Fullscreen Ambient Mode
+         * ---------------------------------------------------- */
+        const zenQuotes = [
+            { quote: "“心如明镜台，时时勤拂拭，莫使有尘埃。”", author: "—— 禅语与自然沉思" },
+            { quote: "“水深则流缓，人贵在静心。”", author: "—— 静心箴言" },
+            { quote: "“林间松风，池上竹影，皆是天地自然之琴瑟。”", author: "—— 菜根谭" },
+            { quote: "“放下的那一刻，心中便有了风和日丽。”", author: "—— 宁境心语" },
+            { quote: "“万物静观皆自得，四时佳兴与人同。”", author: "—— 程颢" }
+        ];
+
+        function refreshQuote() {
+            const quoteEl = document.getElementById('zenQuote');
+            const authorEl = document.getElementById('zenAuthor');
+
+            quoteEl.style.opacity = '0';
+            authorEl.style.opacity = '0';
+
+            setTimeout(() => {
+                const random = zenQuotes[Math.floor(Math.random() * zenQuotes.length)];
+                quoteEl.innerText = random.quote;
+                authorEl.innerText = random.author;
+                quoteEl.style.opacity = '1';
+                authorEl.style.opacity = '1';
+            }, 700);
+        }
+
+        // Dark/Light Theme Switching
+        function toggleTheme() {
+            const html = document.documentElement;
+            const icon = document.getElementById('themeIcon');
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                icon.className = "fa-solid fa-moon";
+            } else {
+                html.classList.add('dark');
+                icon.className = "fa-solid fa-sun text-amber-300";
+            }
+        }
+
+        // Fullscreen Ambient Mode
+        let isZenMode = false;
+        function toggleZenMode() {
+            isZenMode = !isZenMode;
+            const header = document.getElementById('mainHeader');
+            const footer = document.getElementById('mainFooter');
+            const soundPanel = document.querySelector('.lg\\:col-span-5');
+            const exitBtn = document.getElementById('exitZenBtn');
+
+            if (isZenMode) {
+                header.classList.add('opacity-0', 'pointer-events-none');
+                footer.classList.add('opacity-0', 'pointer-events-none');
+                soundPanel.classList.add('opacity-0', 'pointer-events-none', 'hidden');
+                exitBtn.classList.remove('hidden');
+            } else {
+                header.classList.remove('opacity-0', 'pointer-events-none');
+                footer.classList.remove('opacity-0', 'pointer-events-none');
+                soundPanel.classList.remove('opacity-0', 'pointer-events-none', 'hidden');
+                exitBtn.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
