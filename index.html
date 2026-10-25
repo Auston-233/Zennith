@@ -279,7 +279,7 @@
                         准备静心
                     </span>
                     <span id="breathTimerText" class="text-xs font-light tracking-widest text-slate-500 dark:text-slate-400 opacity-80">
-                        点击开启呼吸领航
+                        
                     </span>
                 </div>
             </div>
@@ -288,7 +288,7 @@
             <div class="mt-8 flex items-center gap-4">
                 <button onclick="toggleBreathing()" id="btnBreathingToggle" class="px-6 py-2.5 rounded-full glass-panel hover:bg-white dark:hover:bg-slate-800 text-slate-800 dark:text-slate-100 text-xs font-medium tracking-wider flex items-center gap-2 shadow-sm transition active:scale-95 border border-slate-200/80 dark:border-slate-700/80">
                     <i id="breathControlIcon" class="fa-solid fa-play text-[10px] text-zen-sage"></i>
-                    <span id="breathControlText">开始呼吸导引</span>
+                    <span id="breathControlText">点击开始呼吸</span>
                 </button>
             </div>
 
@@ -645,7 +645,7 @@
             breathingState.phaseIndex = 0;
 
             document.getElementById('breathControlIcon').className = "fa-solid fa-pause text-[10px] text-amber-500";
-            document.getElementById('breathControlText').innerText = "暂停冥想导引";
+            document.getElementById('breathControlText').innerText = "暂停冥想";
 
             runBreathingPhase();
         }
@@ -655,9 +655,8 @@
             clearTimeout(breathingState.timer);
 
             document.getElementById('breathControlIcon').className = "fa-solid fa-play text-[10px] text-zen-sage";
-            document.getElementById('breathControlText').innerText = "开始呼吸导引";
+            document.getElementById('breathControlText').innerText = "点击开始呼吸";
             document.getElementById('breathPhaseText').innerText = "准备静心";
-            document.getElementById('breathTimerText').innerText = "点击开启呼吸导引";
 
             const orb = document.getElementById('breathOrb');
             orb.style.transform = `scale(0.75)`;
